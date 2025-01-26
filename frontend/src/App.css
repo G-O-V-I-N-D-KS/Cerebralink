@@ -1,0 +1,201 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #212121, #424242);
+  color: white;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 94%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  background-image: url(/home/abhijith/project/front/src/assets/london.webp);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.centered-modal {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 10px;
+  width: 60%;
+}
+
+.centered-modal h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.centered-modal p {
+  font-size: 16px;
+}
+
+/* Server response message */
+.server-response {
+  margin-top: 20px;
+  font-style: italic;
+  color: #00ff00;
+}
+
+/* Semi-circle control panel */
+.control-panel {
+  position: relative;
+  width: 300px; /* Diameter of the semi-circle */
+  height: 150px; /* Radius of the semi-circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.control-panel button {
+  position: absolute;
+  background: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.control-panel button.active {
+  background: #00cc66; /* Green for active tab */
+  transform: scale(1.1); /* Slightly enlarge the active button */
+  color: #fff;
+}
+
+.control-panel button:hover {
+  background: #666;
+}
+
+
+/* Circular button for center */
+button.center {
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+/* Positioning buttons in semi-circle */
+button.position-1 {
+  top: 82%; /* Bottom of the circle */
+  left: -30%; /* Far left */
+  transform: translate(-50%, -50%) rotate(-20deg);
+}
+
+button.position-2 {
+  top: 60%; /* Upper left */
+  left: 10%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+}
+
+button.position-3 {
+  top: 50%; /* Centered vertically */
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+button.position-4 {
+  top: 60%; /* Upper right */
+  left: 90%;
+  transform: translate(-50%, -50%) rotate(10deg);
+}
+
+button.position-5 {
+  top: 82%; /* Bottom of the circle */
+  left: 130%; /* Far right */
+  transform: translate(-50%, -50%) rotate(20deg);
+}
+/* General button styling */
+.control-panel button {
+  position: absolute;
+  background: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.3s;
+  outline: none; /* Prevent outline from affecting size */
+  width: auto; /* Keep consistent width */
+  height: auto; /* Keep consistent height */
+}
+
+/* Styling for the active button */
+.control-panel button.active {
+  background: #0066ff;
+  /* Avoid adding extra padding, margin, or borders here */
+  box-shadow: 0 0 10px #0066ff; /* Use shadow for visual effect */
+}
+
+/* Prevent hover effect from affecting layout */
+.control-panel button:hover {
+  background: #666;
+}
+
+/* Circular button for center */
+button.center {
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+/* Positioning buttons in semi-circle */
+button.position-1,
+button.position-2,
+button.position-4,
+button.position-5 {
+  border-radius: 5px;
+}
+
+button.position-1 {
+  top: 82%; /* Bottom of the circle */
+  left: -30%; /* Far left */
+  transform: translate(-50%, -50%) rotate(-20deg);
+}
+
+button.position-2 {
+  top: 60%; /* Upper left */
+  left: 10%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+}
+
+button.position-4 {
+  top: 60%; /* Upper right */
+  left: 90%;
+  transform: translate(-50%, -50%) rotate(10deg);
+}
+
+button.position-5 {
+  top: 82%; /* Bottom of the circle */
+  left: 130%; /* Far right */
+  transform: translate(-50%, -50%) rotate(20deg);
+}

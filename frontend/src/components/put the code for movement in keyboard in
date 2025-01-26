@@ -1,0 +1,5 @@
+put the code for movement in keyboard into app.jsx and pass the row and column to keyboard.jsx .prevent the components from being 
+active by just going through the buttons. only when blink command is given while a button is active should the component related to
+ that button should be shown. add a back button to the keyboard, when selected should give back the control to the control panel.
+  when in keyboard component, all the commands should only affect the keybaord. give me the complete updated code for app.jsx and 
+  keyboard.jsx
