@@ -84,6 +84,9 @@ function Home() {
           prevIndex === words.length - 1 ? 0 : prevIndex + 1
         );
       }
+      else if (command === "blink") {
+        handleWordClick(activeIndex);
+      }
     }
   }, [commandData]);
 
