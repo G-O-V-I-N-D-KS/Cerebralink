@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/Keyboard.css";
 
-function Keyboard({ rows, activeRow, activeCol, text }) {
+function Keyboard({ rows, activeRow, activeCol, text, onKeyClick }) {
   return (
     <div className="keyboard-container">
       <textarea
@@ -17,7 +17,10 @@ function Keyboard({ rows, activeRow, activeCol, text }) {
           {row.map((key, colIndex) => (
             <div
               key={colIndex}
-              className={`key ${rowIndex === activeRow && colIndex === activeCol ? "active" : ""}`}
+              className={`key ${
+                rowIndex === activeRow && colIndex === activeCol ? "active" : ""
+              }`}
+              onClick={() => onKeyClick(rowIndex, colIndex)} // Handle mouse click
             >
               {key}
             </div>
