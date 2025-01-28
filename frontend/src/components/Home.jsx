@@ -86,18 +86,28 @@ function Home() {
     }
   }, [commandData]);
 
-  const handleKeySelection = () => {
-    const selectedKey = rows[keyboardRow][keyboardCol];
-    if (selectedKey === "Space") {
+  const handleWordClick = (index) => {
+    setActiveIndex(index);
+  };
+
+  const handleKeyClick = (row, col) => {
+    setKeyboardRow(row);
+    setKeyboardCol(col);
+    const selectedKey = rows[row][col];
+    handleKeySelection(selectedKey);
+  };
+
+  const handleKeySelection = (key) => {
+    if (key === "Space") {
       setText((prevText) => prevText + " ");
-    } else if (selectedKey === "Enter") {
+    } else if (key === "Enter") {
       setText((prevText) => prevText + "\n");
-    } else if (selectedKey === "Backspace") {
+    } else if (key === "Backspace") {
       setText((prevText) => prevText.slice(0, -1));
-    } else if (selectedKey === "Back") {
+    } else if (key === "Back") {
       setActiveTabIndex(2); // Switch to "words" tab
     } else {
-      setText((prevText) => prevText + selectedKey);
+      setText((prevText) => prevText + key);
     }
   };
 
@@ -117,10 +127,17 @@ function Home() {
             activeRow={keyboardRow}
             activeCol={keyboardCol}
             text={text}
+            onKeyClick={handleKeyClick} // Pass click handler
           />
         );
       case "words":
-        return <Words activeIndex={activeIndex} words={words} />;
+        return (
+          <Words
+            activeIndex={activeIndex}
+            words={words}
+            onWordClick={handleWordClick} // Pass click handler
+          />
+        );
       case "news":
         return <News />;
       case "music":
