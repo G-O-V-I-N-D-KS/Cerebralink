@@ -61,18 +61,19 @@ function Home() {
         setKeyboardRow((prev) => prev - 1);
       } else if (command === "down" && keyboardRow < rows.length - 1) {
         setKeyboardRow((prev) => prev + 1);
-      } else if (command === "left" && keyboardCol > 0) {
+      } else if (command === "right" && keyboardCol > 0) {
         setKeyboardCol((prev) => prev - 1);
-      } else if (command === "right" && keyboardCol < rows[keyboardRow].length - 1) {
+      } else if (command === "left" && keyboardCol < rows[keyboardRow].length - 1) {
         setKeyboardCol((prev) => prev + 1);
       } else if (command === "blink") {
-        handleKeySelection();
+        handleKeySelection(rows[keyboardRow][keyboardCol]);
+        console.log("Selected key:", rows[keyboardRow][keyboardCol]);
       }
     } else {
       console.log("Default navigation block");
-      if (command === "left") {
+      if (command === "right") {
         setActiveTabIndex((prevIndex) => (prevIndex - 1 + tabs.length) % tabs.length);
-      } else if (command === "right") {
+      } else if (command === "left") {
         setActiveTabIndex((prevIndex) => (prevIndex + 1) % tabs.length);
       } else if (command === "up") {
         setActiveIndex((prevIndex) =>
@@ -85,17 +86,6 @@ function Home() {
       }
     }
   }, [commandData]);
-
-  const handleWordClick = (index) => {
-    setActiveIndex(index);
-  };
-
-  const handleKeyClick = (row, col) => {
-    setKeyboardRow(row);
-    setKeyboardCol(col);
-    const selectedKey = rows[row][col];
-    handleKeySelection(selectedKey);
-  };
 
   const handleKeySelection = (key) => {
     if (key === "Space") {
@@ -111,11 +101,44 @@ function Home() {
     }
   };
 
+  const handleWordClick = (index) => {
+    setActiveIndex(index);
+    const selectedWord = words[index];
+    const alertBox = document.createElement("div");
+    alertBox.textContent = selectedWord;
+    alertBox.style.position = "fixed";
+    alertBox.style.display = 'block';  // Show the alert
+    console.log("Selected word:", selectedWord);
+    alertBox.style.top = "10px";
+    alertBox.style.right = "10px";
+    alertBox.style.padding = "10px";
+    alertBox.style.backgroundColor = "#fff";
+    alertBox.style.color = "#000";
+    alertBox.style.borderRadius = "5px";
+    alertBox.style.zIndex = "1000";
+    alertBox.style.height = "50px"
+    alertBox.style.width = "100px"
+    alertBox.style.fontSize = "25px"
+    
+
+    document.body.appendChild(alertBox);
+
+    setTimeout(() => {
+      alertBox.remove();
+    }, 3000);
+  };
+
+  const handleKeyClick = (row, col) => {
+    setKeyboardRow(row);
+    setKeyboardCol(col);
+    const selectedKey = rows[row][col];
+    handleKeySelection(selectedKey);
+  };
+
   const handleTabSelection = () => {
     console.log(`Selected tab: ${tabs[activeTabIndex]}`);
   };
 
-  
   const renderComponent = () => {
     switch (tabs[activeTabIndex]) {
       case "google":
