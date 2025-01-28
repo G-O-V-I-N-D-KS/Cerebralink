@@ -105,6 +105,7 @@ function Home() {
     console.log(`Selected tab: ${tabs[activeTabIndex]}`);
   };
 
+  
   const renderComponent = () => {
     switch (tabs[activeTabIndex]) {
       case "google":
