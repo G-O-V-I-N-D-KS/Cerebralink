@@ -7,8 +7,16 @@ import Words from "./Words";
 import News from "./News";
 import Music from "./Music";
 
-// Initialize the Socket.IO connection
+// Initialize the Socket.IO connection for commands
 const socket = io("http://localhost:5000");
+
+// Initialize the Socket.IO connection for chat messages
+const chatSocket = io("http://localhost:5001", {
+  transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 5000,
+});
 
 function Home() {
   const tabs = ["google", "keyboard", "words", "news", "music"]; // Control panel buttons
@@ -30,10 +38,10 @@ function Home() {
 
   const [text, setText] = useState(""); // Store the entered text
 
-  // Handle WebSocket events
+  // Handle WebSocket events for command socket
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected to server");
+      console.log("Connected to command server");
     });
 
     socket.on("server_response", (data) => {
@@ -48,6 +56,36 @@ function Home() {
     };
   }, []);
 
+  // Handle incoming messages from chat socket to display notifications and speak them out loud
+  useEffect(() => {
+    chatSocket.on("message", (msg) => {
+      // Create a notification on the screen
+      const notification = document.createElement("div");
+      notification.textContent = msg;
+      notification.style.position = "fixed";
+      notification.style.bottom = "10px";
+      notification.style.left = "10px";
+      notification.style.padding = "10px";
+      notification.style.backgroundColor = "#28a745";
+      notification.style.color = "#fff";
+      notification.style.borderRadius = "5px";
+      notification.style.zIndex = "1000";
+      document.body.appendChild(notification);
+
+      // Use text-to-speech to speak the message
+      
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
+
+    return () => {
+      chatSocket.off("message");
+    };
+  }, []);
+
+  // Handle commands received from the command socket
   useEffect(() => {
     const { command } = commandData;
     if (!command) return;
@@ -55,25 +93,23 @@ function Home() {
     console.log("Processing command:", command);
 
     if (activeTabIndex === 1) {
-      console.log("Entered keyboard-specific condition");
-      // Handle keyboard navigation
+      // In the keyboard tab, handle key navigation and selection.
       if (command === "up" && keyboardRow > 0) {
         setKeyboardRow((prev) => prev - 1);
       } else if (command === "down" && keyboardRow < rows.length - 1) {
         setKeyboardRow((prev) => prev + 1);
-      } else if (command === "right" && keyboardCol > 0) {
+      } else if (command === "left" && keyboardCol > 0) {
         setKeyboardCol((prev) => prev - 1);
-      } else if (command === "left" && keyboardCol < rows[keyboardRow].length - 1) {
+      } else if (command === "right" && keyboardCol < rows[keyboardRow].length - 1) {
         setKeyboardCol((prev) => prev + 1);
       } else if (command === "blink") {
         handleKeySelection(rows[keyboardRow][keyboardCol]);
-        console.log("Selected key:", rows[keyboardRow][keyboardCol]);
       }
     } else {
-      console.log("Default navigation block");
-      if (command === "right") {
+      // In other tabs, handle navigation.
+      if (command === "left") {
         setActiveTabIndex((prevIndex) => (prevIndex - 1 + tabs.length) % tabs.length);
-      } else if (command === "left") {
+      } else if (command === "right") {
         setActiveTabIndex((prevIndex) => (prevIndex + 1) % tabs.length);
       } else if (command === "up") {
         setActiveIndex((prevIndex) =>
@@ -83,18 +119,20 @@ function Home() {
         setActiveIndex((prevIndex) =>
           prevIndex === words.length - 1 ? 0 : prevIndex + 1
         );
-      }
-      else if (command === "blink") {
+      } else if (command === "blink") {
         handleWordClick(activeIndex);
       }
     }
   }, [commandData]);
 
+  // This function handles a key selection (via command or mouse click)
   const handleKeySelection = (key) => {
     if (key === "Space") {
       setText((prevText) => prevText + " ");
     } else if (key === "Enter") {
-      setText((prevText) => prevText + "\n");
+      // Emit the current text as a message and clear the text area.
+      chatSocket.emit("message", text);
+      setText("");
     } else if (key === "Backspace") {
       setText((prevText) => prevText.slice(0, -1));
     } else if (key === "Back") {
@@ -102,44 +140,60 @@ function Home() {
     } else {
       setText((prevText) => prevText + key);
     }
+    // Note: The message is spoken when received back from the server.
   };
 
+  // When a word is clicked in the Words tab, show an alert and send the word
   const handleWordClick = (index) => {
     setActiveIndex(index);
     const selectedWord = words[index];
+
+    // Show notification
     const alertBox = document.createElement("div");
     alertBox.textContent = selectedWord;
     alertBox.style.position = "fixed";
-    alertBox.style.display = 'block';  // Show the alert
-    console.log("Selected word:", selectedWord);
     alertBox.style.top = "10px";
     alertBox.style.right = "10px";
     alertBox.style.padding = "10px";
-    alertBox.style.backgroundColor = "#fff";
-    alertBox.style.color = "#000";
+    alertBox.style.backgroundColor = "#333";
+    alertBox.style.color = "#fff";
     alertBox.style.borderRadius = "5px";
     alertBox.style.zIndex = "1000";
-    alertBox.style.height = "50px"
-    alertBox.style.width = "100px"
-    alertBox.style.fontSize = "25px"
-    
-
     document.body.appendChild(alertBox);
 
     setTimeout(() => {
       alertBox.remove();
     }, 3000);
-  };
 
+    // Send message to chat server
+    chatSocket.emit("message", selectedWord);
+
+    // Speak the word
+    const utterance = new SpeechSynthesisUtterance(selectedWord);
+    utterance.lang = "en-US"; // Set language explicitly
+
+    // Ensure a voice is set
+    const voices = window.speechSynthesis.getVoices();
+    utterance.voice = voices.find(voice => voice.lang === "en-US") || voices[0];
+
+    console.log(utterance);
+    
+    window.speechSynthesis.cancel(); // Clear any pending speech
+    window.speechSynthesis.speak(utterance);
+};
+
+// Ensure voices are loaded before using them
+window.speechSynthesis.onvoiceschanged = () => {
+    const voices = window.speechSynthesis.getVoices();
+};
+
+
+  // When a key is clicked in the Keyboard tab, update the active key and send it
   const handleKeyClick = (row, col) => {
     setKeyboardRow(row);
     setKeyboardCol(col);
     const selectedKey = rows[row][col];
     handleKeySelection(selectedKey);
-  };
-
-  const handleTabSelection = () => {
-    console.log(`Selected tab: ${tabs[activeTabIndex]}`);
   };
 
   const renderComponent = () => {
