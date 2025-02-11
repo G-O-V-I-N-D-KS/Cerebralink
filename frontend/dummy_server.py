@@ -6,7 +6,7 @@ import threading
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-commands = ["up","blink","blink","blink"]
+commands = ["up","up","blink","blink","blink"]
 
 def emit_commands():
     """Emit commands to the client with a delay."""

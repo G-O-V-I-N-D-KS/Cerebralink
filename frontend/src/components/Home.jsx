@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-import Google from "./Google";
+import Chat from "./Chat";       // Replaces the former Google component
 import Keyboard from "./Keyboard";
 import Words from "./Words";
 import News from "./News";
@@ -19,10 +19,11 @@ const chatSocket = io("http://localhost:5001", {
 });
 
 function Home() {
-  const tabs = ["google", "keyboard", "words", "news", "music"]; // Control panel buttons
-  const [activeTabIndex, setActiveTabIndex] = useState(2); // Default to "words" (index 2)
-  const [commandData, setCommandData] = useState({ command: null, timestamp: null }); // Store command with timestamp
-  const [activeIndex, setActiveIndex] = useState(2); // Default to "help" (index 2)
+  // Change the first tab from "google" to "chat"
+  const tabs = ["chat", "keyboard", "words", "news", "music"];
+  const [activeTabIndex, setActiveTabIndex] = useState(0); // Default to "chat"
+  const [commandData, setCommandData] = useState({ command: null, timestamp: null });
+  const [activeIndex, setActiveIndex] = useState(2); // For Words component navigation
   const words = ["water", "toilet", "help", "medicine", "tv"];
 
   // Keyboard state
@@ -36,9 +37,11 @@ function Home() {
     ["Space", "Enter", "Shift", "Backspace", "Back"],
   ];
 
-  const [text, setText] = useState(""); // Store the entered text
+  const [text, setText] = useState("");
+  // Lift the chat history state here so it persists between tab switches.
+  const [chatMessages, setChatMessages] = useState([]);
 
-  // Handle WebSocket events for command socket
+  // Handle WebSocket events for the command socket
   useEffect(() => {
     socket.on("connect", () => {
       console.log("Connected to command server");
@@ -56,12 +59,21 @@ function Home() {
     };
   }, []);
 
-  // Handle incoming messages from chat socket to display notifications and speak them out loud
+  // Handle incoming chat messages: update the chat history and perform TTS/notification
   useEffect(() => {
-    chatSocket.on("message", (msg) => {
-      // Create a notification on the screen
+    const handleChatMessage = (data) => {
+      // Expect messages to be objects with a "text" and "sender" property.
+      let msgObj;
+      if (typeof data === "object" && data.text && data.sender) {
+        msgObj = data;
+      } else {
+        msgObj = { text: data, sender: "other" };
+      }
+      setChatMessages((prev) => [...prev, msgObj]);
+
+      // Display a temporary notification
       const notification = document.createElement("div");
-      notification.textContent = msg;
+      notification.textContent = msgObj.text;
       notification.style.position = "fixed";
       notification.style.bottom = "10px";
       notification.style.left = "10px";
@@ -72,16 +84,21 @@ function Home() {
       notification.style.zIndex = "1000";
       document.body.appendChild(notification);
 
-      // Use text-to-speech to speak the message
-      
-      
       setTimeout(() => {
         notification.remove();
       }, 3000);
-    });
+
+      // Use text-to-speech to speak the message aloud.
+      const utterance = new SpeechSynthesisUtterance(msgObj.text);
+      utterance.lang = "en-US";
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    };
+
+    chatSocket.on("message", handleChatMessage);
 
     return () => {
-      chatSocket.off("message");
+      chatSocket.off("message", handleChatMessage);
     };
   }, []);
 
@@ -93,7 +110,7 @@ function Home() {
     console.log("Processing command:", command);
 
     if (activeTabIndex === 1) {
-      // In the keyboard tab, handle key navigation and selection.
+      // Keyboard navigation
       if (command === "up" && keyboardRow > 0) {
         setKeyboardRow((prev) => prev - 1);
       } else if (command === "down" && keyboardRow < rows.length - 1) {
@@ -106,49 +123,45 @@ function Home() {
         handleKeySelection(rows[keyboardRow][keyboardCol]);
       }
     } else {
-      // In other tabs, handle navigation.
+      // Navigation for other tabs
       if (command === "left") {
         setActiveTabIndex((prevIndex) => (prevIndex - 1 + tabs.length) % tabs.length);
       } else if (command === "right") {
         setActiveTabIndex((prevIndex) => (prevIndex + 1) % tabs.length);
       } else if (command === "up") {
-        setActiveIndex((prevIndex) =>
-          prevIndex === 0 ? words.length - 1 : prevIndex - 1
-        );
+        setActiveIndex((prevIndex) => (prevIndex === 0 ? words.length - 1 : prevIndex - 1));
       } else if (command === "down") {
-        setActiveIndex((prevIndex) =>
-          prevIndex === words.length - 1 ? 0 : prevIndex + 1
-        );
+        setActiveIndex((prevIndex) => (prevIndex === words.length - 1 ? 0 : prevIndex + 1));
       } else if (command === "blink") {
+        // When in non-keyboard tabs, use blink to select a word.
         handleWordClick(activeIndex);
       }
     }
   }, [commandData]);
 
-  // This function handles a key selection (via command or mouse click)
+  // Handle key selection from the Keyboard component
   const handleKeySelection = (key) => {
     if (key === "Space") {
       setText((prevText) => prevText + " ");
     } else if (key === "Enter") {
-      // Emit the current text as a message and clear the text area.
-      chatSocket.emit("message", text);
+      // Send the current text as a message (with sender "me") and clear it.
+      chatSocket.emit("message", { text: text, sender: "me" });
       setText("");
     } else if (key === "Backspace") {
       setText((prevText) => prevText.slice(0, -1));
     } else if (key === "Back") {
-      setActiveTabIndex(2); // Switch to "words" tab
+      setActiveTabIndex(2); // Switch to "words" tab.
     } else {
       setText((prevText) => prevText + key);
     }
-    // Note: The message is spoken when received back from the server.
   };
 
-  // When a word is clicked in the Words tab, show an alert and send the word
+  // Handle word selection from the Words component
   const handleWordClick = (index) => {
     setActiveIndex(index);
     const selectedWord = words[index];
 
-    // Show notification
+    // Create a temporary alert notification.
     const alertBox = document.createElement("div");
     alertBox.textContent = selectedWord;
     alertBox.style.position = "fixed";
@@ -165,30 +178,15 @@ function Home() {
       alertBox.remove();
     }, 3000);
 
-    // Send message to chat server
-    chatSocket.emit("message", selectedWord);
-
-    // Speak the word
+    // Emit the selected word as a message.
+    chatSocket.emit("message", { text: selectedWord, sender: "me" });
     const utterance = new SpeechSynthesisUtterance(selectedWord);
-    utterance.lang = "en-US"; // Set language explicitly
-
-    // Ensure a voice is set
-    const voices = window.speechSynthesis.getVoices();
-    utterance.voice = voices.find(voice => voice.lang === "en-US") || voices[0];
-
-    console.log(utterance);
-    
-    window.speechSynthesis.cancel(); // Clear any pending speech
+    utterance.lang = "en-US";
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-};
+  };
 
-// Ensure voices are loaded before using them
-window.speechSynthesis.onvoiceschanged = () => {
-    const voices = window.speechSynthesis.getVoices();
-};
-
-
-  // When a key is clicked in the Keyboard tab, update the active key and send it
+  // Handle key click events in the Keyboard component
   const handleKeyClick = (row, col) => {
     setKeyboardRow(row);
     setKeyboardCol(col);
@@ -196,10 +194,12 @@ window.speechSynthesis.onvoiceschanged = () => {
     handleKeySelection(selectedKey);
   };
 
+  // Render the appropriate component based on the active tab.
+  // Note: The chat history is stored in Home so it persists between tab changes.
   const renderComponent = () => {
     switch (tabs[activeTabIndex]) {
-      case "google":
-        return <Google />;
+      case "chat":
+        return <Chat chatMessages={chatMessages} />;
       case "keyboard":
         return (
           <Keyboard
@@ -207,26 +207,23 @@ window.speechSynthesis.onvoiceschanged = () => {
             activeRow={keyboardRow}
             activeCol={keyboardCol}
             text={text}
-            onKeyClick={handleKeyClick} // Pass click handler
+            onKeyClick={handleKeyClick}
           />
         );
       case "words":
         return (
-          <Words
-            activeIndex={activeIndex}
-            words={words}
-            onWordClick={handleWordClick} // Pass click handler
-          />
+          <Words activeIndex={activeIndex} words={words} onWordClick={handleWordClick} />
         );
       case "news":
         return <News />;
       case "music":
         return <Music />;
       default:
-        return <Words activeIndex={activeIndex} words={words} />;
+        return <Words activeIndex={activeIndex} words={words} onWordClick={handleWordClick} />;
     }
   };
 
+  // Helper function for CSS classes on the control buttons.
   const getButtonClass = (index) => {
     switch (index) {
       case 0:
@@ -248,7 +245,7 @@ window.speechSynthesis.onvoiceschanged = () => {
 
   return (
     <div className="background-overlay">
-      {/* Main Card */}
+      {/* Main Card: this area switches based on the active tab */}
       <div className="centered-modal">{renderComponent()}</div>
 
       {/* Navbar in semi-circle */}
@@ -256,9 +253,7 @@ window.speechSynthesis.onvoiceschanged = () => {
         {tabs.map((tab, index) => (
           <button
             key={tab}
-            className={`${getButtonClass(index)} ${
-              activeTabIndex === index ? "active" : ""
-            }`}
+            className={`${getButtonClass(index)} ${activeTabIndex === index ? "active" : ""}`}
             onClick={() => setActiveTabIndex(index)}
           >
             {capitalize(tab)}
