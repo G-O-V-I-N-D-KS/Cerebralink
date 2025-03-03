@@ -1,0 +1,17 @@
+# Ignore virtual environment folder named "prjct"
+prjct/
+
+# Ignore specific HTML files
+client1.html
+client.html
+singleClient.html
+# Ignore specific Python file
+test.py
+
+# General rules to avoid unnecessary files (optional but useful)
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.swp
+.DS_Store
