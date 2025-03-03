@@ -1,0 +1,41 @@
+/* Container styling for the overall chat area */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #e5ddd5;
+    color: black;
+  }
+  
+  /* Chat history area that scrolls when messages overflow */
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #e5ddd5;
+  }
+  
+  /* Individual message styling */
+  .chat-message {
+    max-width: 60%;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    word-wrap: break-word;
+  }
+  
+  /* Styling for messages sent by the user */
+  .chat-message.sent {
+    background-color: #dcf8c6;
+    margin-left: auto;
+    text-align: right;
+  }
+  
+  /* Styling for messages received from others */
+  .chat-message.received {
+    background-color: #fff;
+    margin-right: auto;
+    text-align: left;
+  }
+  
