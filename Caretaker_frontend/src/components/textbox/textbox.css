@@ -1,0 +1,43 @@
+
+   
+    .bottom {
+      padding: 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #dddddd35;
+      gap: 8px;
+      margin-top: auto;
+      width:100%;
+      position:fixed;
+      bottom: 0;
+      
+     
+   
+      input{
+        flex: 1;
+        background-color: rgba(17, 25, 40, 0.5);
+        border: none;
+        outline: none;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 16px;
+  
+       
+      }
+  
+     
+  
+      .sendButton {
+        background-color: #5183fe;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        
+      
+      }
+    }
+  
