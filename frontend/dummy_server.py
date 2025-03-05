@@ -1,35 +1,85 @@
-from flask import Flask
-from flask_socketio import SocketIO
-import time
-import threading
+import React, { useState, useEffect, useRef } from "react";
+import "../styles/Music.css";
+import aatuthotil from "../assets/aatuthotil.mp3";
+import alone from "../assets/alone.mp3";
+import aswin1 from "../assets/aswin1.mp3";
+import aswin2 from "../assets/aswin2.mp3";
+import badboy from "../assets/badboy.mp3";
+import fri from "../assets/fri.mp3";
+import happy from "../assets/happy.mp3";
+import kadumkappi from "../assets/kadumkappi.mp3";
+import kanmani from "../assets/kanmani.mp3";
+import katturumbu from "../assets/katturumbu.mp3";
+import mashup from "../assets/MASHUP.mp3";
+import ooSathi from "../assets/oo sathi.mp3";
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+const Music = ({ musicCommand }) => {
+  const musicTracks = [
+    { title: "aatuthotil", file: aatuthotil },
+    { title: "alone", file: alone },
+    { title: "aswin1", file: aswin1 },
+    { title: "aswin2", file: aswin2 },
+    { title: "badboy", file: badboy },
+    { title: "fri", file: fri },
+    { title: "happy", file: happy },
+    { title: "kadumkappi", file: kadumkappi },
+    { title: "kanmani", file: kanmani },
+    { title: "katturumbu", file: katturumbu },
+    { title: "MASHUP", file: mashup },
+    { title: "oo sathi", file: ooSathi },
+  ];
 
-commands = ["up","up","blink","blink","blink"]
+  const columns = 3;
+  const [activeMusicIndex, setActiveMusicIndex] = useState(0);
+  const audioRef = useRef(null);
 
-def emit_commands():
-    """Emit commands to the client with a delay."""
-    for command in commands:
-        socketio.sleep(1)  # 1-second delay
-        print(f"Sending command: {command}")
-        socketio.emit("server_response", {"message": command})
-    print("All commands sent.")
+  const playCurrentTrack = () => {
+    const track = musicTracks[activeMusicIndex];
+    if (track) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      audioRef.current = new Audio(track.file);
+      audioRef.current.play();
+    }
+  };
 
-@app.route("/")
-def index():
-    return "Dummy server for React client."
+  useEffect(() => {
+    if (!musicCommand) return;
+    // Process every command, even if it's the same as before.
+    const currentRow = Math.floor(activeMusicIndex / columns);
+    const currentCol = activeMusicIndex % columns;
+    let newIndex = activeMusicIndex;
 
-@socketio.on("connect")
-def handle_connect():
-    print("Client connected.")
-    # Start sending commands in a separate thread to avoid blocking
-    threading.Thread(target=emit_commands).start()
+    if (musicCommand === "up") {
+      newIndex = (activeMusicIndex - columns + musicTracks.length) % musicTracks.length;
+    } else if (musicCommand === "down") {
+      newIndex = (activeMusicIndex + columns) % musicTracks.length;
+    } else if (musicCommand === "left") {
+      newIndex = currentRow * columns + ((currentCol - 1 + columns) % columns);
+    } else if (musicCommand === "right") {
+      newIndex = currentRow * columns + ((currentCol + 1) % columns);
+    } else if (musicCommand === "blink") {
+      playCurrentTrack();
+    }
 
-@socketio.on("disconnect")
-def handle_disconnect():
-    print("Client disconnected.")
+    if (newIndex !== activeMusicIndex) {
+      setActiveMusicIndex(newIndex);
+    }
+  }, [musicCommand, activeMusicIndex, musicTracks.length, columns]);
 
-if __name__ == "__main__":
-    print("Starting dummy server...")
-    socketio.run(app, host="0.0.0.0", port=5000)
+  return (
+    <div className="music-container">
+      {musicTracks.map((track, index) => (
+        <div
+          key={index}
+          className={`music-box ${index === activeMusicIndex ? "active" : ""}`}
+        >
+          {track.title}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Music;

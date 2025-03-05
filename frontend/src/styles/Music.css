@@ -1,72 +1,52 @@
+/* Music.css */
+
 .music-container {
-    padding: 20px;
-    max-width: 800px;
-    max-height: 500px; /* Set a maximum height for the container */
-    margin: 0 auto;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.music-box {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 30px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.music-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.music-box.active {
+  border: 3px solid #fff;
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive styling */
+@media (max-width: 600px) {
+  .music-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
   }
-  
-  .music-header {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333333;
-    text-align: center;
+
+  .music-box {
+    padding: 20px 10px;
+    font-size: 1rem;
   }
-  
-  .music-message {
-    font-size: 18px;
-    color: #555555;
-    text-align: center;
-  }
-  
-  .music-list-container {
-    flex-grow: 1;
-    overflow-y: auto; /* Enable vertical scrolling */
-  }
-  
-  .music-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .music-item {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .music-item:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  .music-info {
-    margin-bottom: 10px;
-  }
-  
-  .music-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #0077cc;
-  }
-  
-  .music-artist {
-    font-size: 16px;
-    color: #555555;
-  }
-  
-  .music-player {
-    width: 100%;
-  }
-  
+}

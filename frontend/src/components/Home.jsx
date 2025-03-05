@@ -21,10 +21,12 @@ const chatSocket = io("http://localhost:5001", {
 function Home() {
   // Change the first tab from "google" to "chat"
   const tabs = ["chat", "keyboard", "words", "news", "music"];
-  const [activeTabIndex, setActiveTabIndex] = useState(0); // Default to "chat"
+  const [activeTabIndex, setActiveTabIndex] = useState(2); // Default to "chat"
   const [commandData, setCommandData] = useState({ command: null, timestamp: null });
   const [activeIndex, setActiveIndex] = useState(2); // For Words component navigation
   const words = ["water", "toilet", "help", "medicine", "tv"];
+
+  const [musicCommand, setMusicCommand] = useState(null);
 
   // Keyboard state
   const [keyboardRow, setKeyboardRow] = useState(0);
@@ -106,35 +108,43 @@ function Home() {
   useEffect(() => {
     const { command } = commandData;
     if (!command) return;
-
-    console.log("Processing command:", command);
-
-    if (activeTabIndex === 1) {
-      // Keyboard navigation
-      if (command === "up" && keyboardRow > 0) {
-        setKeyboardRow((prev) => prev - 1);
-      } else if (command === "down" && keyboardRow < rows.length - 1) {
-        setKeyboardRow((prev) => prev + 1);
-      } else if (command === "left" && keyboardCol > 0) {
-        setKeyboardCol((prev) => prev - 1);
-      } else if (command === "right" && keyboardCol < rows[keyboardRow].length - 1) {
-        setKeyboardCol((prev) => prev + 1);
-      } else if (command === "blink") {
-        handleKeySelection(rows[keyboardRow][keyboardCol]);
+    console.log(activeTabIndex)
+    if (activeTabIndex === 4) { // Music tab is active
+      if (["up", "down", "left", "right", "blink"].includes(command)) {
+        setMusicCommand(commandData);
       }
     } else {
-      // Navigation for other tabs
-      if (command === "left") {
-        setActiveTabIndex((prevIndex) => (prevIndex - 1 + tabs.length) % tabs.length);
-      } else if (command === "right") {
-        setActiveTabIndex((prevIndex) => (prevIndex + 1) % tabs.length);
-      } else if (command === "up") {
-        setActiveIndex((prevIndex) => (prevIndex === 0 ? words.length - 1 : prevIndex - 1));
-      } else if (command === "down") {
-        setActiveIndex((prevIndex) => (prevIndex === words.length - 1 ? 0 : prevIndex + 1));
-      } else if (command === "blink") {
-        // When in non-keyboard tabs, use blink to select a word.
-        handleWordClick(activeIndex);
+      // Existing logic for keyboard and words (unchanged)
+      if (activeTabIndex === 1) {
+        // keyboard tab logic
+        if (command === "up" && keyboardRow > 0) {
+          setKeyboardRow((prev) => prev - 1);
+        } else if (command === "down" && keyboardRow < rows.length - 1) {
+          setKeyboardRow((prev) => prev + 1);
+        } else if (command === "left" && keyboardCol > 0) {
+          setKeyboardCol((prev) => prev - 1);
+        } else if (command === "right" && keyboardCol < rows[keyboardRow].length - 1) {
+          setKeyboardCol((prev) => prev + 1);
+        } else if (command === "blink") {
+          handleKeySelection(rows[keyboardRow][keyboardCol]);
+        }
+      } else {
+        // For words and others
+        if (command === "left") {
+          setActiveTabIndex((prevIndex) => (prevIndex - 1 + tabs.length) % tabs.length);
+        } else if (command === "right") {
+          setActiveTabIndex((prevIndex) => (prevIndex + 1) % tabs.length);
+        } else if (command === "up") {
+          setActiveIndex((prevIndex) =>
+            prevIndex === 0 ? words.length - 1 : prevIndex - 1
+          );
+        } else if (command === "down") {
+          setActiveIndex((prevIndex) =>
+            prevIndex === words.length - 1 ? 0 : prevIndex + 1
+          );
+        } else if (command === "blink") {
+          handleWordClick(activeIndex);
+        }
       }
     }
   }, [commandData]);
@@ -217,7 +227,7 @@ function Home() {
       case "news":
         return <News />;
       case "music":
-        return <Music />;
+        return <Music musicCommand={musicCommand} />;
       default:
         return <Words activeIndex={activeIndex} words={words} onWordClick={handleWordClick} />;
     }

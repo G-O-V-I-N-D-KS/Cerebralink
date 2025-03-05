@@ -1,57 +1,87 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../styles/Music.css";
+import aatuthotil from "../assets/aatuthotil.mp3";
+import alone from "../assets/alone.mp3";
+import aswin1 from "../assets/aswin1.mp3";
+import aswin2 from "../assets/aswin2.mp3";
+import badboy from "../assets/badboy.mp3";
+import fri from "../assets/fri.mp3";
+import happy from "../assets/happy.mp3";
+import kadumkappi from "../assets/kadumkappi.mp3";
+import kanmani from "../assets/kanmani.mp3";
+import katturumbu from "../assets/katturumbu.mp3";
+import mashup from "../assets/MASHUP.mp3";
+import ooSathi from "../assets/oo sathi.mp3";
 
-function Music() {
-  const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Music = ({ musicCommand }) => {
+  const musicTracks = [
+    { title: "aatuthotil", file: aatuthotil },
+    { title: "alone", file: alone },
+    { title: "aswin1", file: aswin1 },
+    { title: "aswin2", file: aswin2 },
+    { title: "badboy", file: badboy },
+    { title: "fri", file: fri },
+    { title: "happy", file: happy },
+    { title: "kadumkappi", file: kadumkappi },
+    { title: "kanmani", file: kanmani },
+    { title: "katturumbu", file: katturumbu },
+    { title: "MASHUP", file: mashup },
+    { title: "oo sathi", file: ooSathi },
+  ];
+
+  const columns = 3;
+  const [activeMusicIndex, setActiveMusicIndex] = useState(0);
+  const audioRef = useRef(null);
+
+  const playCurrentTrack = () => {
+    const track = musicTracks[activeMusicIndex];
+    if (track) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      audioRef.current = new Audio(track.file);
+      audioRef.current.play();
+    }
+  };
 
   useEffect(() => {
-    const fetchMusic = async () => {
-      try {
-        const response = await fetch(
-          "https://api.jamendo.com/v3.0/tracks/?client_id=303d822c&format=json&limit=20"
-        ); // Replace YOUR_CLIENT_ID with your Jamendo API key
-        const data = await response.json();
-        setTracks(data.results || []);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching music:", error);
-        setLoading(false);
+    if (!musicCommand) return;
+
+    // Use functional update to avoid including activeMusicIndex in dependency
+    setActiveMusicIndex((prevIndex) => {
+      const currentRow = Math.floor(prevIndex / columns);
+      const currentCol = prevIndex % columns;
+      let newIndex = prevIndex;
+      console.log("musicCommand", musicCommand);
+      let comm = musicCommand.command;
+      if (comm === "up") {
+        newIndex = (prevIndex - columns + musicTracks.length) % musicTracks.length;
+      } else if (comm === "down") {
+        newIndex = (prevIndex + columns) % musicTracks.length;
+      } else if (comm === "left") {
+        newIndex = currentRow * columns + ((currentCol - 1 + columns) % columns);
+      } else if (comm === "right") {
+        newIndex = currentRow * columns + ((currentCol + 1) % columns);
+      } else if (comm === "blink") {
+        playCurrentTrack();
+        return prevIndex;
       }
-    };
-
-    fetchMusic();
-  }, []);
-
-  if (loading) {
-    return <div className="music-container">Loading music...</div>;
-  }
+      return newIndex;
+    });
+  }, [musicCommand, musicTracks.length, columns]); // activeMusicIndex removed
 
   return (
     <div className="music-container">
-      <h2 className="music-header">Top Music Tracks</h2>
-      {tracks.length === 0 ? (
-        <p className="music-message">No music tracks available at the moment.</p>
-      ) : (
-        <div className="music-list-container">
-          <ul className="music-list">
-            {tracks.map((track) => (
-              <li key={track.id} className="music-item">
-                <div className="music-info">
-                  <h3 className="music-title">{track.name}</h3>
-                  <p className="music-artist">by {track.artist_name}</p>
-                </div>
-                <audio controls className="music-player">
-                  <source src={track.audio} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              </li>
-            ))}
-          </ul>
+      {musicTracks.map((track, index) => (
+        <div
+          key={index}
+          className={`music-box ${index === activeMusicIndex ? "active" : ""}`}
+        >
+          {track.title}
         </div>
-      )}
+      ))}
     </div>
   );
-}
+};
 
 export default Music;
