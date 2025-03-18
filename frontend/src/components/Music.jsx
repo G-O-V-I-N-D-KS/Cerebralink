@@ -1,3 +1,4 @@
+// src/components/Music.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/Music.css";
 import aatuthotil from "../assets/aatuthotil.mp3";
@@ -10,7 +11,7 @@ import happy from "../assets/happy.mp3";
 import kadumkappi from "../assets/kadumkappi.mp3";
 import kanmani from "../assets/kanmani.mp3";
 import katturumbu from "../assets/katturumbu.mp3";
-import mashup from "../assets/MASHUP.mp3";
+import MASHUP from "../assets/MASHUP.mp3";
 import ooSathi from "../assets/oo sathi.mp3";
 
 const Music = ({ musicCommand }) => {
@@ -25,50 +26,69 @@ const Music = ({ musicCommand }) => {
     { title: "kadumkappi", file: kadumkappi },
     { title: "kanmani", file: kanmani },
     { title: "katturumbu", file: katturumbu },
-    { title: "MASHUP", file: mashup },
+    { title: "MASHUP", file: MASHUP },
     { title: "oo sathi", file: ooSathi },
   ];
 
-  const columns = 3;
   const [activeMusicIndex, setActiveMusicIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
 
-  const playCurrentTrack = () => {
-    const track = musicTracks[activeMusicIndex];
-    if (track) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      audioRef.current = new Audio(track.file);
-      audioRef.current.play();
+  const updateAudioForNewTrack = (newIndex) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsPlaying(false);
+    setActiveMusicIndex(newIndex);
+    if (!audioRef.current) {
+      audioRef.current = new Audio(musicTracks[newIndex].file);
+    } else {
+      audioRef.current.src = musicTracks[newIndex].file;
     }
   };
 
-  useEffect(() => {
-    if (!musicCommand) return;
+  const togglePlayback = () => {
+    const track = musicTracks[activeMusicIndex];
+    if (!track) return;
+    if (!audioRef.current) {
+      audioRef.current = new Audio(track.file);
+    }
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      console.info(`Paused: ${track.title}`);
+    } else {
+      audioRef.current.muted = true;
+      audioRef.current
+        .play()
+        .then(() => {
+          audioRef.current.muted = false;
+          setIsPlaying(true);
+          console.info(`Playing: ${track.title}`);
+        })
+        .catch((error) =>
+          console.error(`Autoplay prevented for ${track.title}:`, error)
+        );
+    }
+  };
 
-    // Use functional update to avoid including activeMusicIndex in dependency
-    setActiveMusicIndex((prevIndex) => {
-      const currentRow = Math.floor(prevIndex / columns);
-      const currentCol = prevIndex % columns;
-      let newIndex = prevIndex;
-      console.log("musicCommand", musicCommand);
-      let comm = musicCommand.command;
-      if (comm === "up") {
-        newIndex = (prevIndex - columns + musicTracks.length) % musicTracks.length;
-      } else if (comm === "down") {
-        newIndex = (prevIndex + columns) % musicTracks.length;
-      } else if (comm === "left") {
-        newIndex = currentRow * columns + ((currentCol - 1 + columns) % columns);
-      } else if (comm === "right") {
-        newIndex = currentRow * columns + ((currentCol + 1) % columns);
-      } else if (comm === "blink") {
-        playCurrentTrack();
-        return prevIndex;
-      }
-      return newIndex;
-    });
-  }, [musicCommand, musicTracks.length, columns]); // activeMusicIndex removed
+  // Process command object using the timestamp so that each new command triggers the effect.
+  useEffect(() => {
+    if (!musicCommand || !musicCommand.timestamp) return;
+    // Process command based on its value
+    const { command } = musicCommand;
+    if (command === "up") {
+      const newIndex =
+        activeMusicIndex === 0 ? musicTracks.length - 1 : activeMusicIndex - 1;
+      updateAudioForNewTrack(newIndex);
+    } else if (command === "down") {
+      const newIndex =
+        activeMusicIndex === musicTracks.length - 1 ? 0 : activeMusicIndex + 1;
+      updateAudioForNewTrack(newIndex);
+    } else if (command === "blink") {
+      togglePlayback();
+    }
+  }, [musicCommand.timestamp]); // Effect runs each time the timestamp changes
 
   return (
     <div className="music-container">

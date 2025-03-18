@@ -1,7 +1,8 @@
+// src/components/Chat.jsx
 import React from "react";
 import "../styles/chat.css";
 
-function Chat({ chatMessages }) {
+const Chat = ({ chatMessages }) => {
   return (
     <div className="chat-container">
       <div className="chat-history">
@@ -16,6 +17,6 @@ function Chat({ chatMessages }) {
       </div>
     </div>
   );
-}
+};
 
 export default Chat;

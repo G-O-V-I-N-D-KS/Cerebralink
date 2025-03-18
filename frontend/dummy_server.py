@@ -1,20 +1,22 @@
+# server/app.py
 from flask import Flask
 from flask_socketio import SocketIO
 import time
-import threading
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+app.config['SECRET_KEY'] = 'your-secret-key'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
-commands = ["right","right","right","right","up","up","left","left","down","down"]
+# List of commands to be sent (e.g., up, down, left, right, blink)
+commands = ["right","right","up","up","blink","blink","left"]
 
 def emit_commands():
     """Emit commands to the client with a delay."""
     for command in commands:
-        socketio.sleep(1)  # 1-second delay
-        print(f"Sending command: {command}")
+        socketio.sleep(2)  # Delay of 2 seconds between commands
+        app.logger.info(f"Sending command: {command}")
         socketio.emit("server_response", {"message": command})
-    print("All commands sent.")
+    app.logger.info("All commands sent.")
 
 @app.route("/")
 def index():
@@ -22,14 +24,14 @@ def index():
 
 @socketio.on("connect")
 def handle_connect():
-    print("Client connected.")
-    # Start sending commands in a separate thread to avoid blocking
-    threading.Thread(target=emit_commands).start()
+    app.logger.info("Client connected.")
+    # Start background task so as not to block the event loop.
+    socketio.start_background_task(emit_commands)
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print("Client disconnected.")
+    app.logger.info("Client disconnected.")
 
 if __name__ == "__main__":
-    print("Starting dummy server...")
+    app.logger.info("Starting dummy server...")
     socketio.run(app, host="0.0.0.0", port=5000)
