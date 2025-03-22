@@ -3,39 +3,113 @@
 .music-container {
   display: flex;
   flex-direction: column;
-  max-height: 500px; /* Adjust height so 5 boxes fit */
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-}
-
-.music-box {
+  align-items: center;
+  max-width: 600px;
+  margin: 20px auto;
   padding: 15px;
-  margin: 5px 0;
-  border: 1px solid #ddd;
-  background-color: #f7f7f7;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.3); /* Semi-transparent outer box */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  max-height: 300px;
+  
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #0066ff rgba(0,0,0,0.2);
 }
 
-.music-box:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+.music-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.music-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.music-container::-webkit-scrollbar-thumb {
+  background-color: #0066ff;
+  border-radius: 4px;
+  border: 2px solid transparent;
+}
+
+.music-container::-webkit-scrollbar-thumb:hover {
+  background-color: #0055cc;
+}
+
+/* Music box styling */
+.music-box {
+  width: 100%;
+  max-width: 550px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  margin: 10px 0;
+  background: #333;
+  color: white;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 18px;
+  transition: background 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
 }
 
 .music-box.active {
-  background-color: #dcf8c6;
-  border-color: #128c7e;
+  background-color: #0066ff;
+  border-color: #0066ff;
+  color: white;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.music-box:hover {
+  background: #555;
+  transform: scale(1.02);
+}
+
+/* Music icon styling: Positioned at the very start */
+.music-icon {
+  font-size: 24px;
+  width: 30px;
+  text-align: center;
+}
+
+/* Music image styling */
+.music-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* Music info styling */
+.music-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.music-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.music-duration {
+  font-size: 14px;
+  color: #ccc;
 }
 
 /* Responsive styling */
 @media (max-width: 600px) {
   .music-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    width: 90%;
   }
-
+  
   .music-box {
-    padding: 20px 10px;
-    font-size: 1rem;
+    width: 90%;
+    font-size: 16px;
+    padding: 12px;
   }
 }

@@ -64,8 +64,8 @@ const Home = () => {
   useEffect(() => {
     if (TABS[activeTabIndex] === "keyboard") {
       const interval = setInterval(() => {
-        setCommandData({ command: "right", timestamp: Date.now() });
-      }, 2000);
+        setKeyboardCol((prev) => (prev === keyboardRows[keyboardRow].length - 1 ? 0 : prev + 1));
+      }, 500);
       return () => clearInterval(interval);
     }
   }, [activeTabIndex]);
@@ -124,14 +124,14 @@ const Home = () => {
           setActiveTabIndex((prev) => (prev + 1) % TABS.length);
         }
     } else if (TABS[activeTabIndex] === "keyboard") {
-      if (command === "up" && keyboardRow > 0) {
-        setKeyboardRow((prev) => prev - 1);
-      } else if (command === "down" && keyboardRow < keyboardRows.length - 1) {
-        setKeyboardRow((prev) => prev + 1);
-      } else if (command === "left" && keyboardCol > 0) {
-        setKeyboardCol((prev) => prev - 1);
-      } else if (command === "right" && keyboardCol < keyboardRows[keyboardRow].length - 1) {
-        setKeyboardCol((prev) => prev + 1);
+      if (command === "up") {
+        setKeyboardRow((prev) => (prev === 0 ? keyboardRows.length - 1 : prev - 1));
+      } else if (command === "down") {
+        setKeyboardRow((prev) => (prev === keyboardRows.length - 1 ? 0 : prev + 1));
+      } else if (command === "left") {
+        setActiveTabIndex((prev) => (prev - 1 + TABS.length) % TABS.length);
+      } else if (command === "right") {
+        setActiveTabIndex((prev) => (prev + 1) % TABS.length);
       } else if (command === "blink") {
         handleKeySelection(keyboardRows[keyboardRow][keyboardCol]);
       }

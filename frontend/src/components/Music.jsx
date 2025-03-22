@@ -14,25 +14,42 @@ import katturumbu from "../assets/katturumbu.mp3";
 import MASHUP from "../assets/MASHUP.mp3";
 import ooSathi from "../assets/oo sathi.mp3";
 
+// Import corresponding images
+import aatuthotilImg from "../assets/aatuthotil.jpeg";
+import aloneImg from "../assets/alone.jpeg";
+import aswin1Img from "../assets/aswin1.jpeg";
+import aswin2Img from "../assets/aswin2.jpeg";
+import badboyImg from "../assets/badboy.jpeg";
+import friImg from "../assets/fri.jpeg";
+import happyImg from "../assets/happy.jpeg";
+import kadumkappiImg from "../assets/kadumkappi.jpeg";
+import kanmaniImg from "../assets/kanmani.jpeg";
+import katturumbuImg from "../assets/katturumbu.jpeg";
+import MASHUPImg from "../assets/MASHUP.jpeg";
+import ooSathiImg from "../assets/oo sathi.jpeg";
+
 const Music = ({ musicCommand }) => {
   const musicTracks = [
-    { title: "aatuthotil", file: aatuthotil },
-    { title: "alone", file: alone },
-    { title: "aswin1", file: aswin1 },
-    { title: "aswin2", file: aswin2 },
-    { title: "badboy", file: badboy },
-    { title: "fri", file: fri },
-    { title: "happy", file: happy },
-    { title: "kadumkappi", file: kadumkappi },
-    { title: "kanmani", file: kanmani },
-    { title: "katturumbu", file: katturumbu },
-    { title: "MASHUP", file: MASHUP },
-    { title: "oo sathi", file: ooSathi },
+    { title: "aatuthotil", file: aatuthotil, image: aatuthotilImg },
+    { title: "alone", file: alone, image: aloneImg },
+    { title: "aswin1", file: aswin1, image: aswin1Img },
+    { title: "aswin2", file: aswin2, image: aswin2Img },
+    { title: "badboy", file: badboy, image: badboyImg },
+    { title: "fri", file: fri, image: friImg },
+    { title: "happy", file: happy, image: happyImg },
+    { title: "kadumkappi", file: kadumkappi, image: kadumkappiImg },
+    { title: "kanmani", file: kanmani, image: kanmaniImg },
+    { title: "katturumbu", file: katturumbu, image: katturumbuImg },
+    { title: "MASHUP", file: MASHUP, image: MASHUPImg },
+    { title: "oo sathi", file: ooSathi, image: ooSathiImg },
   ];
 
   const [activeMusicIndex, setActiveMusicIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
+  // Create an array of refs for music boxes.
+  const boxRefs = useRef([]);
 
   const updateAudioForNewTrack = (newIndex) => {
     if (audioRef.current) {
@@ -45,6 +62,9 @@ const Music = ({ musicCommand }) => {
     } else {
       audioRef.current.src = musicTracks[newIndex].file;
     }
+    audioRef.current.onloadedmetadata = () => {
+      setDuration(audioRef.current.duration);
+    };
   };
 
   const togglePlayback = () => {
@@ -72,10 +92,8 @@ const Music = ({ musicCommand }) => {
     }
   };
 
-  // Process command object using the timestamp so that each new command triggers the effect.
   useEffect(() => {
     if (!musicCommand || !musicCommand.timestamp) return;
-    // Process command based on its value
     const { command } = musicCommand;
     if (command === "up") {
       const newIndex =
@@ -88,16 +106,46 @@ const Music = ({ musicCommand }) => {
     } else if (command === "blink") {
       togglePlayback();
     }
-  }, [musicCommand.timestamp]); // Effect runs each time the timestamp changes
+  }, [musicCommand.timestamp]);
+
+  // When activeMusicIndex changes, scroll the corresponding box into view.
+  useEffect(() => {
+    const activeBox = boxRefs.current[activeMusicIndex];
+    if (activeBox) {
+      activeBox.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  }, [activeMusicIndex]);
+
+  const formatDuration = (dur) => {
+    if (!dur || isNaN(dur)) return "0:00";
+    const minutes = Math.floor(dur / 60);
+    const seconds = Math.floor(dur % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
 
   return (
     <div className="music-container">
       {musicTracks.map((track, index) => (
         <div
           key={index}
+          ref={(el) => (boxRefs.current[index] = el)}
           className={`music-box ${index === activeMusicIndex ? "active" : ""}`}
+          onClick={() => {updateAudioForNewTrack(index);togglePlayback()}}
         >
-          {track.title}
+          <div className="music-icon">
+            <i className={`fa ${index === activeMusicIndex ? (isPlaying ? "fa-pause" : "fa-play") : "fa-play"}`}></i>
+          </div>
+          <img src={track.image} alt={track.title} className="music-image" />
+          <div className="music-info">
+            <span className="music-title">{track.title}</span>
+            {index === activeMusicIndex && (
+              <span className="music-duration">{formatDuration(duration)}</span>
+            )}
+          </div>
         </div>
       ))}
     </div>

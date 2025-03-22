@@ -8,7 +8,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # List of commands to be sent (e.g., up, down, left, right, blink)
-commands = ["right","right","up","up","blink","blink","left"]
+commands = ["left","up","down","down"]
 
 def emit_commands():
     """Emit commands to the client with a delay."""
