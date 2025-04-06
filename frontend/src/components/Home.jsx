@@ -114,7 +114,6 @@ const Home = () => {
   useEffect(() => {
     const { command } = commandData;
     if (!command) return;
-    console.log(activeTabIndex)
     if (TABS[activeTabIndex] === "music") {
      /* if (["up", "down", "blink"].includes(command)) {
         setMusicCommand(command);

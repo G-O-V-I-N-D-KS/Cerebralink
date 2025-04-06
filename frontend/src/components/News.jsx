@@ -7,6 +7,11 @@ const News = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (window.currentAudio) {
+      window.currentAudio.pause();
+      window.currentAudio.currentTime = 0;
+      window.currentAudio = null; // Clear it
+    }
     const fetchNews = async () => {
       try {
         const response = await fetch(

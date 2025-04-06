@@ -3,6 +3,11 @@ import React from "react";
 import "../styles/chat.css";
 
 const Chat = ({ chatMessages }) => {
+  if (window.currentAudio) {
+    window.currentAudio.pause();
+    window.currentAudio.currentTime = 0;
+    window.currentAudio = null; // Clear it
+  }
   return (
     <div className="chat-container">
       <div className="chat-history">

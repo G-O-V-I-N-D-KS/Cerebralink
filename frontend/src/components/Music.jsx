@@ -107,6 +107,7 @@ const Music = ({ musicCommand }) => {
     } else if (command === "blink") {
       togglePlayback();
     }
+    window.currentAudio = audioRef.current;
   }, [musicCommand.timestamp]);
 
   // When activeMusicIndex changes, scroll the corresponding box into view.
