@@ -20,6 +20,7 @@
   
   .keyboard-row {
     display: flex;
+    flex-direction: row;
     gap: 10px;
   }
   
@@ -45,3 +46,21 @@
     background: #555;
   }
   
+  .keyboa {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .con {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .back{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

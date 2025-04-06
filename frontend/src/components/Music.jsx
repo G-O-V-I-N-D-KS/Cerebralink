@@ -95,6 +95,7 @@ const Music = ({ musicCommand }) => {
   useEffect(() => {
     if (!musicCommand || !musicCommand.timestamp) return;
     const { command } = musicCommand;
+    console.log(command)
     if (command === "up") {
       const newIndex =
         activeMusicIndex === 0 ? musicTracks.length - 1 : activeMusicIndex - 1;
