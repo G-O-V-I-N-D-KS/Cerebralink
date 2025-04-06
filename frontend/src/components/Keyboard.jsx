@@ -12,7 +12,7 @@ const Keyboard = ({ rows, activeRow, activeCol, text, onKeyClick }) => {
           className={`key ${0 === activeCol ? "active" : ""} back`}
           onClick={() => onKeyClick(activeRow, 0)}
         >
-          Back
+          Left
         </div>
         <div className="con">
           {rows.map((row, rowIndex) => (
@@ -37,7 +37,7 @@ const Keyboard = ({ rows, activeRow, activeCol, text, onKeyClick }) => {
           className={`key ${rows[activeRow].length - 1 === activeCol ? "active" : ""} back`}
           onClick={() => onKeyClick(activeRow, rows[activeRow].length - 1)}
         >
-          Back
+          Right
         </div>
       </div>
     </div>

@@ -29,11 +29,11 @@ const Home = () => {
   const [keyboardRow, setKeyboardRow] = useState(0);
   const [keyboardCol, setKeyboardCol] = useState(0);
   const keyboardRows = [
-    ["Back", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Back"],
-    ["Back", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Back"],
-    ["Back", "Z", "X", "C", "V", "B", "N", "M", "Back"],
-    ["Back", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Back"],
-    ["Back", "Space", "Enter", "Shift", "Backspace", "Back"],
+    ["Left", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Right"],
+    ["Left", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Right"],
+    ["Left", "Z", "X", "C", "V", "B", "N", "M", "Right"],
+    ["Left", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Right"],
+    ["Left", "Space", "Enter", "Shift", "Backspace", "Right"],
   ];
 
   const [text, setText] = useState("");
@@ -159,8 +159,10 @@ const Home = () => {
       setText("");
     } else if (key === "Backspace") {
       setText((prev) => prev.slice(0, -1));
-    } else if (key === "Back") {
+    } else if (key === "Right") {
       setActiveTabIndex(TABS.indexOf("words"));
+    } else if (key === "Left") {
+      setActiveTabIndex(TABS.indexOf("chat"));
     } else {
       setText((prev) => prev + key);
     }
