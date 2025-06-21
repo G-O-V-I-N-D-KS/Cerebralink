@@ -20,10 +20,10 @@
 | Layer            | Technology                                             |
 |------------------|--------------------------------------------------------|
 | Signal Acquisition | Arduino Uno R3 + BioAmp EXG Pill + Gel Electrodes     |
-| Backend          | Python (PySerial, NumPy, SciPy, TensorFlow/PyTorch)    |
-| Model            | CNN for Up/Down Eye Movement Classification            |
+| Backend          | Python (Pylsl, NumPy, SciPy, TensorFlow)    |
+| Model            | CNN for  Eye Movement Classification            |
 | Communication    | Serial Communication, Optional: Lab Streaming Layer    |
-| Frontend UI      | Python GUI (Tkinter / PyQt / Pygame) or Web Interface  |
-| Visualization    | Matplotlib / OpenCV / Real-time Plotting Tools         |
+| Frontend UI      | React JS Interface  |
+| Visualization    | Matplotlib , Real-time Plotting Tools         |
 
 ---
